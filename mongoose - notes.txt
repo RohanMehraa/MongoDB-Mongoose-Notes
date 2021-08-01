@@ -1,0 +1,245 @@
+Mongoose is a package to work with MongoDB, and it's called an ODM (Object Document Mapper).
+
+const mongoose = require('mongoose');
+// to start working with mongoose in your app.js
+
+// Connection URL
+mongoose.connect("mongodb://localhost:27017/fruitsDB", { useNewUrlParser: true, useUnifiedTopology: true });
+
+// first we define a schema for our collection in the db:
+const fruitSchema = new mongoose.Schema({
+    name: String,
+    rating: Number,
+    review: String
+});
+
+
+
+// *********** INSERT INTO DATABASE USING MONGOOSE**************
+
+
+
+
+// then we use this schema to create a mongoose model 
+// The model method takes 2 parameters, the first parameter is a string and it specifies the name of the collection that is going to comply with the defined schema, the mongoose way of defining the name of the collection is by defining the singular name of the collection and mongoose will very cleverly convert this string into a pluralise form to create this collection, by doing this mongoose will create a collection called Fruits.
+// the second parameter is the schema which we have defined and want to use for this particular collection.
+
+const Fruit = mongoose.model("Fruit", fruitSchema);
+
+
+
+// lowercase 'f'ruit is used to define a new document namely fruit which follows the Fruit model defined above:
+
+const fruit = new Fruit({
+    name: "Apple",
+    rating: 7,
+    review: "Pretty solid as a fruit."
+});
+
+
+// calls the save method in mongoose to save this fruits document into the fruits collection in the fruitsDb.
+
+fruit.save();
+
+
+
+// here are multiple fruit documents:
+
+const kiwi = new Fruit({
+    name: "Kiwi",
+    score: 10,
+    review: "The best fruit!"
+});
+
+const orange = new Fruit({
+    name: "Orange",
+    score: 4,
+    review: "Too sour for me"
+});
+
+const banana = new Fruit({
+    name: "Banana",
+    score: 3,
+    review: "Weird Texture"
+});
+
+
+// to insert multiple documents to the collection at once use the following method with the model created:
+// here Fruit is a model 
+/* model.insterMany([array of documents to be saved], function(err){
+    if (err){
+        console.log(err);
+    }
+    else 
+        console.log("success");
+});
+*/
+
+Fruit.insertMany([kiwi, orange, banana], function(err) {
+    if (err) {
+        console.log(err);
+    }
+    else {
+        console.log("Successfully saved all the fruits!");
+    }
+});
+
+
+
+// *********** READ FROM THE DATABASE ************************************************
+
+/* SYNTAX:
+<model>.find(function(err, <collections>){
+    if (err)
+        console.log(err);
+    else
+        console.log(<collections>)
+})
+
+*/
+
+//eg:
+Fruit.find(function(err, fruits){
+    if (err)
+        console.log(err);
+    else
+        mongoose.connection.close(); // close the connection once all of the tasks are completed.
+        console.log(fruits);
+});
+
+
+// to print just the name of the fruits:
+Fruit.find(function(err, fruits){
+    if (err)
+        console.log(err);
+    else
+    {
+        mongoose.connection.close(); // close the connection once all of the tasks are completed.
+        // console.log(fruits);
+        fruits.forEach(function(fruit){  // here the forEach loop accepts a callback function with 
+                                            a single document out of all the fruits collection & then prints out fruit.name:
+            console.log(fruit.name);
+        });
+    }
+});
+
+
+// DATA VALIDATIONS **************
+const fruitSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: [true, "Please check your data entry, no name specified!"]
+    },  // either use true or 1.
+
+    rating: {
+        type: Number,
+        min: 1,
+        max: 10
+    },
+
+    review: String
+});
+
+
+
+//********* UPDATE DATA USING MONGOOSE *****************
+
+// SYNTAX:
+<model>.updateOne({conditionForSearch}, {fieldToBeUpdated}, function(err) {
+    if (err)
+        console.log(err);
+    else
+        console.log("success");
+});
+
+
+//eg:
+Fruit.updateOne({_id: "5fda801a747ef9247442b8ca"}, {name: "Peach"}, function(err) {
+    if (err)
+        console.log(err);
+    else
+        console.log("Successfully updated the document.");
+});
+
+
+
+
+// ************ DELETE DATA USING MONGOOSE *******************
+
+// SYNTAX:
+<model>.deleteOne({conditionForSearch}, function(err) {
+    if (err)
+        console.log(err);
+    else
+        console.log("success");
+});
+
+
+//eg:
+Fruit.deleteOne({name: "Peach"}, function(err) {
+    if (err)
+        console.log(err);
+    else
+        console.log("Successfully deleted the document.");
+});
+
+
+// DELETE MANY************
+
+//SYNTAX:
+<model>.deleteMany({conditionForSearch}, function(err) {
+    if (err)
+        console.log(err);
+    else
+        console.log("success");
+});
+
+
+//eg:
+Person.deleteMany({name: "John"}, function(err) {
+    if (err)
+        console.log(err);
+    else
+        console.log("Successfully deleted all the documents.");
+});
+
+
+
+// ***** RELATIONSHIPS AND EMBEDDING DOCS. USING MONGOOSE *******************
+
+const personSchema = new mongoose.Schema({
+    name: String,
+    age: Number,
+    favouriteFruit: fruitSchema             // The personSchema has fruitSchema embedded into it 
+                                            //  thus formig a relationship.
+});
+
+const pineapple = new Fruit({
+    name: "Pineapple",
+    rating: 9,
+    review: "Great fruit."
+});
+pineapple.save();
+
+const person = new Person({
+    name: "Amy",
+    age: 12,
+    favouriteFruit: pineapple
+});
+person.save();
+
+
+const mango = new Fruit({
+    name: "Mango",
+    rating: 10,
+    review: "Really a great one."
+});
+
+mango.save();
+
+Person.updateOne({name: "John"}, {favouriteFruit: mango}, function(err) {
+    if (err)
+        console.log(err);
+    else
+        console.log("Successfully updated the document.");
+});

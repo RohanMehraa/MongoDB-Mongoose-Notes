@@ -1,0 +1,177 @@
+/* CREATE DATA IN DATABASE*************************************************************************/
+
+cmd:
+mongod
+// use mongod command to start mongo db server to the default port.
+
+
+then open a new tab in the terminal and use, 
+cmd:
+mongo
+// mongo cmd opens up the mongo shell by which we can interact with the mongoDB
+
+
+cmd:
+help
+// help command prints the helpful commands one can use with mongo db
+
+
+cmd:
+show dbs
+// the show dbs command prints the names of the dbs created that we currently have in our local systems.
+// by default mongoDB comes with 3 databases: 
+// admin, config & local.
+
+
+cmd:
+use <dbName>
+// the use command is used to create a new db and also switches to that db in order to use it.
+// if the db is empty, then it is not shown in the db list via show dbs command.
+
+
+cmd:
+db
+// the db command tells, on which db the user is working currently.
+
+
+cmd:
+db.<collection>.insertOne(
+    {
+        _id: 1,
+        name: "Pen",
+        price: 1.20
+    }
+)
+
+// this command inserts an entry to a particular collection in the db. If the collection doesn't exists then it creates the collection first and then inserts that one particular item into it. Inside the insertOne function, a javascript object is passed as key value pairs resembles the field name and value.
+// a collection in mongoDB is like tables in sqlDB, and it consists of documents and the documents resembles a single record in the sqlDB.
+
+
+cmd:
+show collections
+//this command shows all of the collections under the current db.
+
+
+
+cmd:
+db.collection.insertMany(
+   [ <document 1> , <document 2>, ... ],
+   {
+      writeConcern: <document>,
+      ordered: <boolean>
+   }
+)
+
+//Inserts multiple documents into a collection.
+/*
+Parameter	    Type	    Description
+document	    document	An array of documents to insert into the collection.
+
+writeConcern	document	Optional. A document expressing the write concern. Omit to use the 
+                            default write concern.
+
+                            Do not explicitly set the write concern for the operation if run in a transaction. To use write concern with transactions, see Transactions and Write Concern.
+
+ordered	        boolean	    Optional. A boolean specifying whether the mongod instance should 
+                            perform an ordered or unordered insert. Defaults to true.
+
+
+Returns:	
+A document containing:
+A boolean acknowledged as true if the operation ran with write concern or false if write concern was disabled
+An array of _id for each successfully inserted documents
+*/
+
+
+
+
+/* READ DATA FROM DATABASE*************************************************************************/
+
+
+cmd:
+db.<collection>.find({field: "value"})
+
+//this command returns the particular documents/records within the collection.
+//eg: db.products.find({name: "Pencil"})
+
+
+cmd:
+db.<collection>.find({price: {$gt: 1}})
+
+//this command finds all of the documents which has the price greater than 1. $gt is a query selector used for comparison. It Matches values that are greater than a specified value.
+
+
+cmd: 
+db.<collection>.find(<query>, <projection>)
+
+// here query refers to the condition on the basis of which we want to fetch data.
+// and, projection refers to the corresponding fields we want to fetch out of the document.
+
+eg: db.products.find({_id: 1}, {name: 1})
+//here, it will find the record with _id 1 and print the following:
+// { "_id" : 1, "name" : "Pen" }
+// by default it will print the id but we can control what we want to print and what we want to avoid, just by assigning 1 and 0 in the projection to print and avoid respectively.
+
+eg: db.products.find({_id: 1}, {name: 1, _id: 0})
+//here, in the projection: name has a corresponding value of 1 which means we want to print the value of name, but _id has a corresponding value of 0 which means we don't want to print the value of _id.
+
+//Please note if we don't specify any projection then we get all of the fields in the colleciton.
+
+
+
+
+/* ******UPDATE DATA INSIDE THE DATABASE ********************************************************/
+
+
+cmd:
+db.collection.updateOne(<filter>, <update>, <options>)
+db.collection.updateMany(<filter>, <update>, <options>)
+db.collection.replaceOne(<filter>, <update>, <options>)
+
+eg: db.products.updateOne({_id: 1}, {$set: {stock: 32}})
+//here updateOne method is used to update one record/document, the 1st parameter here is filter on the basis of which we find the record/document to be updated, the update paramenter has values to be updated. Here, in this case $set allows us to set a new field and value into the document.
+
+
+
+
+/* ******DELETE DATA FROM THE DATABASE ********************************************************/
+
+cmd:
+db.<collection>.deleteOne(<condition>)
+db.<collection>.deleteMany(<condition>)
+
+eg: db.products.deleteOne({_id: 2})
+//here, using deleteOne or deleteMany method we can delete the document/documents which satisfy the condition we provide inside the parenthesis.
+
+
+
+
+/* ****** RELATIONSHIPS IN MONGODB ********************************************************/
+
+cmd:
+eg:
+db.products.insert(
+    {
+        _id: 3,
+        name: "Rubber",
+        price: 1.30,
+        stock: 43,
+        reviews: [
+            {
+                authorName: "Sally",
+                rating: 5,
+                review: "Best rubber ever!"
+            },
+
+            {
+                authorName: "Johnny"
+                rating: 5,
+                review: "Awesome Rubber, Loved it!!"
+            }
+        ]
+    }
+)
+
+// here, the insert method is inserting a new document, and this document consists of a new field namely 'reviews'.
+// reviews is of type array, as one product can have multiple reviews/reviewers. This explains One to Many RELATIONSHIP in MongoDB. As one document consists of multiple documents.
+
