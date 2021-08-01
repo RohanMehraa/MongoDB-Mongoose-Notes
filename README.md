@@ -182,12 +182,16 @@ db.products.insert(
 // here, the insert method is inserting a new document, and this document consists of a new field namely 'reviews'.
 // reviews is of type array, as one product can have multiple reviews/reviewers. This explains One to Many RELATIONSHIP in MongoDB. As one document consists of multiple documents.
 
+
+
+
   
 ---------------------------------------------------------------------------------------------------------------------------------------------------
   
-  Mongoose:
-  
-  Mongoose is a package to work with MongoDB, and it's called an ODM (Object Document Mapper).
+Mongoose:
+
+    
+Mongoose is a package to work with MongoDB, and it's called an ODM (Object Document Mapper).
 
 const mongoose = require('mongoose');
 // to start working with mongoose in your app.js
